@@ -2,7 +2,8 @@
 
 [Tomas Lawton](tomaslawton.netlify.app), [Marius Hoggenmüller](https://marius.hoggenmueller.com/)
 
-Add Description 
+Add Description
+
 Add Image
 
 # Step by Step Installation
@@ -20,11 +21,11 @@ Download Google Chrome from [https://www.google.com/chrome/](https://www.google.
 ### Maps API Key
 Get a Google Maps API key from [https://developers.google.com/maps/documentation/javascript/get-api-key](https://developers.google.com/maps/documentation/javascript/get-api-key)
 
-### Clone the server
+### Clone the project
 
 ```
 git clone https://github.com/HoggenMari/Street_View.git
-cd GSV_Server/
+cd Street_View/
 ```
 
 ## Server Setup
@@ -59,8 +60,11 @@ npm start
 Client is now running, so app is now running automatically. You can also run rpm run dev
 
 ## Usage
-With the server and client now running, they will automatically syncronise user and moderator data. 
-Simply navigate to the /user and /moderator routes in seperate Chrome tabs to open the views. You will need to add your API key.
+With the server and client now running, they will automatically sync. 
+
+Navigate to the /user and /moderator routes in seperate Chrome tabs to open the views. 
+
+You will need to add your API key.
 
 ```
 http://localhost:8081/moderator
@@ -69,7 +73,7 @@ http://localhost:8081/moderator
 http://localhost:8081/user
 ```
 
-The default route will rereoute to user. You will manually need to change url to enter moderator mode.
+The default route will route to the user view. You will manually need to change url to enter moderator mode.
 
 # Deployment
 
