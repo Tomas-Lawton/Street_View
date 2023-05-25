@@ -2,7 +2,7 @@
 import { store } from '@/store'
 
 export default {
-  name: "Landing-View",
+  name: "Authentication",
   data() {
     return {
       api_input: "",

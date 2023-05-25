@@ -1,40 +1,40 @@
 import { createWebHistory, createRouter } from "vue-router";
-import User from "@/views/User.vue";
-import Moderator from "@/views/Moderator.vue";
-import Landing from "@/views/Landing.vue";
+import Session from "@/views/Session.vue";
+import Authentication from "@/views/Authentication.vue";
 import { store } from '@/store'
-
-//const isLoggedIn = true
 
 const routes = [
     {
         path: '/',
         name: `Home`,
-        component: User,
+        component: Session,
         meta: {
             requiresAuth: true
-        }
+        },
+        props: { isUser: true }
     },
     {
         path: "/user",
         name: "User",
-        component: User,
+        component: Session,
         meta: {
             requiresAuth: true
-        }
+        },
+        props: { isUser: true }
     },
     {
         path: "/moderator",
         name: "Moderator",
-        component: Moderator,
+        component: Session,
         meta: {
             requiresAuth: true
-        }
+        },
+        props: { isUser: false }
     },
     {
         path: "/login",
         name: "Login",
-        component: Landing,
+        component: Authentication,
     }
 ];
 
