@@ -48,7 +48,7 @@ export default {
       pov: {
         heading: 0,
         pitch: 0,
-        zoom: this.isUser ? .5 : 1
+        zoom: this.isUser ? .5 : 1.5
       },
       mapRef: null,
       isLoaded: false,
@@ -188,6 +188,7 @@ export default {
       if (this.isFollowing) {
         console.log('Received pov event:', data);
         this.pov = data;
+        this.pov.zoom = this.isUser ? .5 : 1.5;
       }
     });
     socket.on('marker', (data) => {
@@ -260,7 +261,7 @@ export default {
     </section>
 
     <section :style="panoStyle" id="pano-container">
-      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef"
+      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef" :isUser="isUser"
         :markers="markers" />
     </section>
   </div>

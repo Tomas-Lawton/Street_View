@@ -21,11 +21,13 @@ const PORT = process.env.PORT || 8080;
 let connections = [];
 let markers = [];
 let position = { lat: 0, lng: 0 };
-let pov = { heading: 0, pitch: 0, zoom: 1 }
+// let pov = { heading: 0, pitch: 0, zoom: 1 }
+let pov = { heading: 0, pitch: 0 }
+
 
 io.on('connection', (socket) => {
   // Connect and load markers for joining clients
-  console.log('connected user: ', socket.id);
+  console.log('connected id: ', socket.id);
   connections.push(socket);
   for (let i = 0; i < markers.length; i++) {
     socket.emit("marker", markers[i]);

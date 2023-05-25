@@ -12,7 +12,8 @@ export default {
     map: Object,
     latLng: Object,
     pov: Object,
-    markers: [Object]
+    markers: [Object],
+    isUser: Boolean
   },
   emits: ['marker-changed'],
   data() {
@@ -24,7 +25,7 @@ export default {
   },
   mounted() {
     initiated = false;
-
+    console.log("Mounted ", this.pov)
     try {
       this.pano = new google.maps.StreetViewPanorama(this.$refs["pano"], {
         position: {
@@ -68,7 +69,9 @@ export default {
 
       // User point of view event
       this.pano.addListener("pov_changed", () => {
-        const newPov = this.pano.getPov();
+        let newPov = this.pano.getPov();
+        newPov.zoom = this.isUser ? .5 : 1.5;
+
         if (SocketioService.socket) {
           SocketioService.socket.emit('pov', newPov);
         }
