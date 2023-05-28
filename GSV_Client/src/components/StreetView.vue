@@ -2,6 +2,7 @@
 
 import MarkerContainer from "@/components/MarkerContainer.vue";
 import SocketioService from '../services/socket';
+import { store } from '@/store'
 
 let initiated = false;
 
@@ -11,7 +12,7 @@ export default {
   props: {
     map: Object,
     latLng: Object,
-    pov: Object,
+    inputPov: Object,
     markers: [Object],
     isUser: Boolean,
     willUpdate: Boolean
@@ -33,7 +34,7 @@ export default {
           lat: this.latLng.lat,
           lng: this.latLng.lng
         },
-        pov: this.pov,
+        pov: this.inputPov,
         addressControlOptions: {
           position: google.maps.ControlPosition.LEFT_BOTTOM
         },
@@ -58,30 +59,32 @@ export default {
       this.pano.addListener('position_changed', () => {
         const newPosition = this.pano.getPosition();
         mapObject.setCenter(newPosition);
-
         this.startMutationObserving();
+
+
+        // store.commit('updateUserPosition', {
+        //   lat: newPosition.lat, lng: newPosition.lng
+        // });
 
         if (SocketioService.socket && this.willUpdate) {
           SocketioService.socket.emit('position', newPosition);
         }
-
+        // Set on the store???
         console.log("Updated position in streetview")
       });
 
-      // User point of view event
+
       this.pano.addListener("pov_changed", () => {
         let newPov = this.pano.getPov();
         newPov.zoom = this.isUser ? .5 : 1.5;
-
         if (SocketioService.socket && this.willUpdate) {
           SocketioService.socket.emit('pov', newPov);
         }
-      });
 
+      });
     });
 
     this.addMarkersToPano();
-
   },
   methods: {
     checkAllMarkers() {
@@ -186,13 +189,14 @@ export default {
   watch: {
     latLng: {
       handler: function (val) {
+        console.log(val)
         this.pano.setPosition(val)
       },
       deep: true
     },
-    pov: {
+    inputPov: {
       handler: function (val) {
-        this.pano.setPov(val)
+        this.pano.setPov(val);
       },
       deep: true
     },

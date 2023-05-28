@@ -37,19 +37,22 @@ export default {
     latLng() {
       return store.state.user.position
     },
+    willControl() {
+      return (this.selectedMode === "Controlling");
+    },
     willUpdate() {
       return (this.selectedMode !== "Free") // Ignores the free mode
     },
     willFollow() {
       // makes mod follow in follow mode and user follow in control mode
-     return (this.selectedMode === "Controlling" && this.isUser)
-      || (this.selectedMode === "Following" && !this.isUser)
+      return (this.selectedMode === "Controlling" && this.isUser)
+        || (this.selectedMode === "Following" && !this.isUser)
     },
   },
   data() {
     return {
       markers: [],
-      pov: {
+      inputPov: {
         heading: 0,
         pitch: 0,
         zoom: this.isUser ? .5 : 1.5
@@ -149,6 +152,13 @@ export default {
     setFollowMode() {
       if (SocketioService.socket) {
         SocketioService.socket.emit('controlling', this.selectedMode);
+        // Also snap to the current pos/pov
+        // if (this.selectedMode !== "Free") {
+        //   console.log("Snap to pos/pov")
+        //   console.log("UPDATE: ", store.state.user.position)
+        //   SocketioService.socket.emit('position', store.state.user.position);
+        //   SocketioService.socket.emit('pov', this.inputPov);
+        // }
       }
     },
     goHome() {
@@ -162,7 +172,7 @@ export default {
         console.log("clearing markers")
         SocketioService.socket.emit('clear');
       }
-    }
+    },
   },
   mounted() {
     this.$refs.mapRef.$mapPromise.then((mapObject) => {
@@ -197,8 +207,8 @@ export default {
     socket.on('pov', (data) => {
       if (this.willFollow) {
         console.log('Received pov event:', data);
-        this.pov = data;
-        this.pov.zoom = this.isUser ? .5 : 1.5;
+        this.inputPov = data;
+        this.inputPov.zoom = this.isUser ? .5 : 1.5;
       }
     });
     socket.on('marker', (data) => {
@@ -239,8 +249,9 @@ export default {
 <template>
   <div id="map_wrapper" style="display: flex;">
     <div v-if="!isUser" class="container-moderator-mode">
-      <SelectButton v-model="selectedMode" :options="dropdownOptions" :unselectable="false" class="selector" @click="setFollowMode"/>
-      <div class="indicator" :class="{ active: !willFollow }"></div>
+      <SelectButton v-model="selectedMode" :options="dropdownOptions" :unselectable="false" class="selector"
+        @click="setFollowMode" />
+      <div class="indicator" :class="{ active: !willControl }"></div>
     </div>
     <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
     <!-- TO DO refactor as component -->
@@ -268,7 +279,7 @@ export default {
       <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
     </div>
     <section :style="panoStyle" id="pano-container">
-      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef"
+      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :inputPov="inputPov" :map="mapRef"
         :isUser="isUser" :willUpdate="willUpdate" :markers="markers" />
     </section>
   </div>
