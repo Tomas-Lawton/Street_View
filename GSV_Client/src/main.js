@@ -1,30 +1,31 @@
 import App from "@/App";
 import VueGoogleMaps from '@fawmi/vue-google-maps'
 import router from './router'
+import PrimeVue from 'primevue/config';
+
 import { createApp } from 'vue'
 import { store } from '@/store'
-import { SuiVue } from "semantic-ui-vue"
-import 'semantic-ui-css/semantic.min.css';
 
-// Vuetify
-// import 'vuetify/styles'
-// import { createVuetify } from 'vuetify'
-// import * as components from 'vuetify/components'
-// import * as directives from 'vuetify/directives'
+import "primevue/resources/primevue.min.css"; //core CSS
+import "primeicons/primeicons.css"; //icons
 
-// const vuetify = createVuetify({
-//     components,
-//     directives,
-// });
+import 'semantic-ui-css/semantic.min.css'; // to do remove redundent styles
+
+import SelectButton from 'primevue/selectbutton';
 
 
-createApp(App)
+
+const app = createApp(App)
     .use(router)
     .use(store)
-    .use(SuiVue)
+    .use(PrimeVue)
     .use(VueGoogleMaps, {
         load: {
             key: store.state.apiKey,
             libraries: ['places']
         },
-}).mount('#app')
+    });
+
+app.component('SelectButton', SelectButton);
+
+app.mount('#app')

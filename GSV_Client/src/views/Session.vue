@@ -27,3 +27,12 @@ export default {
   <MapContainer :isUser="isUser" :key="sessionKey">
   </MapContainer>
 </template>
+
+<style>
+.gm-style-cc {
+  display: none;
+}
+.gm-style div a img {
+    display: none;
+}
+</style>

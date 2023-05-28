@@ -5,6 +5,17 @@ import SelectDropdown from "@/components/SelectDropdown.vue";
 import SocketioService from "../services/socket";
 import { store } from '@/store'
 
+import { ref } from 'vue';
+
+const value = ref(null);
+const options = ref([
+                { icon: 'pi pi-align-left', value: 'Left' },
+                { icon: 'pi pi-align-right', value: 'Right' },
+                { icon: 'pi pi-align-center', value: 'Center' },
+                { icon: 'pi pi-align-justify', value: 'Justify' }
+            ]);
+
+
 export default {
   name: 'Map-Component',
   components: { StreetView, SelectDropdown },
@@ -21,7 +32,7 @@ export default {
         "z-index": "20",
         "bottom": "0px",
         "left": "0px",
-        "transform": "translateX(5px) translateY(-5px)",
+        "transform": "translateX(10px) translateY(-10px)",
       } :
         {
           "width": "50vw",
@@ -67,10 +78,14 @@ export default {
         lng: 0
       },
       showRemove: false,
-      selectedMarker: null
+      selectedMarker: null,
+      showMap: true,
     }
   },
   methods: {
+    setMap(event) {
+      this.showMap = event;
+    },
     hideMenus() {
       this.showRemove = false;
       this.showDropdown = false;
@@ -143,7 +158,7 @@ export default {
     },
     goHome() {
       store.commit('updateUserPosition', {
-            lat: -33.8985415, lng: 151.169633
+        lat: -33.8985415, lng: 151.169633
       });
     },
     clearMarkers() {
@@ -212,7 +227,7 @@ export default {
         console.log(this.markers)
       }
     });
-      socket.on('clear', () => {
+    socket.on('clear', () => {
       if (this.isUser) {
         console.log('Received marker event');
         this.markers = [];
@@ -228,6 +243,15 @@ export default {
 
 <template>
   <div id="map_wrapper" style="display: flex;">
+
+    <div class="card flex justify-content-center">
+        <SelectButton v-model="value" :options="options" optionLabel="value" dataKey="value" aria-labelledby="custom">
+            <template #option="slotProps">
+                <i :class="slotProps.option.icon"></i>
+            </template>
+        </SelectButton>
+    </div>
+
 
     <!-- TO DO refactor as component -->
     <div v-if="!isUser" class="container-follower">
@@ -252,7 +276,13 @@ export default {
       <i class="window close icon"></i>
     </button>
 
-    <section :style="mapStyle" id="map-container" ref="map">
+
+    <section v-if="showMap" :style="mapStyle" id="map-container" ref="map">
+
+      <div class="container-map-icon close-map" v-if="isUser">
+        <button @click="() => setMap(false)" class="ui active"><i class="close icon"></i></button>
+      </div>
+
       <GMapMap ref="mapRef" :center=latLng :zoom="40" map-type-id="terrain" @click="mapClickEvent" :options="options"
         @dragstart="hideMenus">
         <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true" :draggable="true"
@@ -260,9 +290,13 @@ export default {
       </GMapMap>
     </section>
 
+    <div class="container-map-icon open-map" v-if="!showMap && isUser">
+      <button @click="() => setMap(true)" class="ui active"><i class="map pin icon"></i></button>
+    </div>
+
     <section :style="panoStyle" id="pano-container">
-      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef" :isUser="isUser"
-        :markers="markers" />
+      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef"
+        :isUser="isUser" :markers="markers" />
     </section>
   </div>
 </template>
@@ -270,6 +304,11 @@ export default {
 <style>
 #map-container .vue-map-container {
   height: 100%;
+}
+
+.vue-map {
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+  border-radius: 5px;
 }
 
 .container-follower {
@@ -280,6 +319,53 @@ export default {
   align-items: center;
   justify-content: end;
 }
+
+.container-map-icon {
+  position: absolute;
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+  border-radius: 2px;
+  width: 40px;
+  height: 40px;
+  margin: 10px 10px 10px 10px;
+  bottom: 0;
+  left: 0;
+}
+
+.container-map-icon button {
+  width: 100%;
+  height: 100%;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+
+}
+
+.close-map button {
+  background-color: rgb(255, 255, 255);
+}
+
+.open-map button {
+  background: #222222;
+  color: #8f8f8f8f;
+}
+
+.open-map button:hover i {
+  color: #ffffff;
+  transition: .6s;
+}
+
+.container-map-icon button i {
+  color: #666666;
+  margin: 0;
+  font-size: 1.6em;
+}
+
+
 
 .follow-button {
   margin: 10px 0 10px 10px;
@@ -299,9 +385,15 @@ export default {
   box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
   border: none;
   transition: .6s;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-i.home.icon, i.marker.icon {
+i.home.icon,
+i.marker.icon {
   margin: 0;
 }
 
