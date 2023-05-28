@@ -13,7 +13,8 @@ export default {
     latLng: Object,
     pov: Object,
     markers: [Object],
-    isUser: Boolean
+    isUser: Boolean,
+    willUpdate: Boolean
   },
   emits: ['marker-changed'],
   data() {
@@ -60,7 +61,7 @@ export default {
 
         this.startMutationObserving();
 
-        if (SocketioService.socket) {
+        if (SocketioService.socket && this.willUpdate) {
           SocketioService.socket.emit('position', newPosition);
         }
 
@@ -72,7 +73,7 @@ export default {
         let newPov = this.pano.getPov();
         newPov.zoom = this.isUser ? .5 : 1.5;
 
-        if (SocketioService.socket) {
+        if (SocketioService.socket && this.willUpdate) {
           SocketioService.socket.emit('pov', newPov);
         }
       });
@@ -167,6 +168,9 @@ export default {
           icon: icon
         });
 
+
+        // check if on streetview
+        // if !isUser
         google.maps.event.addListener(marker, 'dragend', () => {
           console.log('test')
           const id = marker.icon.url.split('#')[1];

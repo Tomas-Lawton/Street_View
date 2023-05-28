@@ -37,13 +37,14 @@ export default {
     latLng() {
       return store.state.user.position
     },
-    isFollowing() {
-      return (this.isModeratorControlling && this.isUser) ||
-        (!this.isModeratorControlling && !this.isUser)
+    willUpdate() {
+      return (this.selectedMode !== "Free") // Ignores the free mode
     },
-    lightIsOn () {
-      return (this.selectedMode !== "Controlling")
-    }
+    willFollow() {
+      // makes mod follow in follow mode and user follow in control mode
+     return (this.selectedMode === "Controlling" && this.isUser)
+      || (this.selectedMode === "Following" && !this.isUser)
+    },
   },
   data() {
     return {
@@ -59,7 +60,6 @@ export default {
         mapTypeControl: false,
         fullscreenControl: false,
       },
-      isModeratorControlling: true,
       showDropdown: false,
       menuPosition: {
         x: 0,
@@ -74,9 +74,9 @@ export default {
       showMap: true,
       selectedMode: "Controlling",
       dropdownOptions: [
-        "Controlling" ,
-         "Following" ,
-        "Free" ,
+        "Controlling",
+        "Following",
+        "Free",
       ]
     }
   },
@@ -146,12 +146,9 @@ export default {
       this.selectedMarker = null;
       this.showRemove = false;
     },
-    toggleFollow() {
-      console.log("toggle")
-      this.isModeratorControlling = !this.isModeratorControlling;
+    setFollowMode() {
       if (SocketioService.socket) {
-        console.log(this.isModeratorControlling)
-        SocketioService.socket.emit('controlling', this.isModeratorControlling);
+        SocketioService.socket.emit('controlling', this.selectedMode);
       }
     },
     goHome() {
@@ -185,11 +182,11 @@ export default {
 
     socket.on('controlling', (data) => {
       console.log('Received controlling event:', data);
-      this.isModeratorControlling = data
+      this.selectedMode = data
       console.log(this.isUser)
     });
     socket.on('position', (data) => {
-      if (this.isFollowing) {
+      if (this.willFollow) {
         console.log('Received position event:', data);
         store.commit('updateUserPosition', {
           lat: data.lat,
@@ -198,7 +195,7 @@ export default {
       }
     });
     socket.on('pov', (data) => {
-      if (this.isFollowing) {
+      if (this.willFollow) {
         console.log('Received pov event:', data);
         this.pov = data;
         this.pov.zoom = this.isUser ? .5 : 1.5;
@@ -242,58 +239,47 @@ export default {
 <template>
   <div id="map_wrapper" style="display: flex;">
     <div v-if="!isUser" class="container-moderator-mode">
-      <SelectButton v-model="selectedMode" :options="dropdownOptions" :unselectable="false" class="selector"/>
-      <div class="indicator" :class="{ active: lightIsOn }"></div>
+      <SelectButton v-model="selectedMode" :options="dropdownOptions" :unselectable="false" class="selector" @click="setFollowMode"/>
+      <div class="indicator" :class="{ active: !willFollow }"></div>
     </div>
-
     <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
-
     <!-- TO DO refactor as component -->
     <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="{
         left: menuPosition.x + 'px',
         top: menuPosition.y + 'px'
-      }">
-      Remove
+      }">Remove
       <i class="window close icon"></i>
     </button>
-
-
     <section v-if="showMap" :style="mapStyle" id="map-container" ref="map">
-
       <div class="container-map-icon close-map" v-if="isUser">
         <button @click="() => setMap(false)" class="ui active"><i class="close icon"></i></button>
       </div>
-
       <GMapMap ref="mapRef" :center=latLng :zoom="40" map-type-id="terrain" @click="mapClickEvent" :options="options"
         @dragstart="hideMenus">
         <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true" :draggable="true"
           @click="selectMarkerEvent($event, index)" @dragend="markerChangedEvent($event.latLng, index)" />
       </GMapMap>
     </section>
-
     <div class="container-map-icon open-map" v-if="!showMap && isUser">
       <button @click="() => setMap(true)" class="ui active"><i class="map pin icon"></i></button>
     </div>
-
-      <div class="container-moderator-buttons" v-if="!isUser">
-    <button @click="goHome" class="ui follow-button active"><i class="home icon"></i></button>
+    <div class="container-moderator-buttons" v-if="!isUser">
+      <button @click="goHome" class="ui follow-button active"><i class="home icon"></i></button>
       <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
     </div>
-
-
     <section :style="panoStyle" id="pano-container">
       <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef"
-        :isUser="isUser" :markers="markers" />
+        :isUser="isUser" :willUpdate="willUpdate" :markers="markers" />
     </section>
   </div>
 </template>
 
 <style>
 .card {
-    background: var(--surface-card);
-    padding: 2rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
+  background: var(--surface-card);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
 }
 
 #map-container .vue-map-container {
