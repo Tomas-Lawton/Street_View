@@ -5,17 +5,6 @@ import SelectDropdown from "@/components/SelectDropdown.vue";
 import SocketioService from "../services/socket";
 import { store } from '@/store'
 
-import { ref } from 'vue';
-
-const value = ref(null);
-const options = ref([
-                { icon: 'pi pi-align-left', value: 'Left' },
-                { icon: 'pi pi-align-right', value: 'Right' },
-                { icon: 'pi pi-align-center', value: 'Center' },
-                { icon: 'pi pi-align-justify', value: 'Justify' }
-            ]);
-
-
 export default {
   name: 'Map-Component',
   components: { StreetView, SelectDropdown },
@@ -51,6 +40,9 @@ export default {
     isFollowing() {
       return (this.isModeratorControlling && this.isUser) ||
         (!this.isModeratorControlling && !this.isUser)
+    },
+    lightIsOn () {
+      return (this.selectedMode !== "Controlling")
     }
   },
   data() {
@@ -80,6 +72,12 @@ export default {
       showRemove: false,
       selectedMarker: null,
       showMap: true,
+      selectedMode: "Controlling",
+      dropdownOptions: [
+        "Controlling" ,
+         "Following" ,
+        "Free" ,
+      ]
     }
   },
   methods: {
@@ -243,27 +241,10 @@ export default {
 
 <template>
   <div id="map_wrapper" style="display: flex;">
-
-    <div class="card flex justify-content-center">
-        <SelectButton v-model="value" :options="options" optionLabel="value" dataKey="value" aria-labelledby="custom">
-            <template #option="slotProps">
-                <i :class="slotProps.option.icon"></i>
-            </template>
-        </SelectButton>
+    <div v-if="!isUser" class="container-moderator-mode">
+      <SelectButton v-model="selectedMode" :options="dropdownOptions" :unselectable="false" class="selector"/>
+      <div class="indicator" :class="{ active: lightIsOn }"></div>
     </div>
-
-
-    <!-- TO DO refactor as component -->
-    <div v-if="!isUser" class="container-follower">
-      <button @click="goHome" class="ui follow-button active"><i class="home icon"></i></button>
-      <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
-      <button class="ui follow-button" v-bind:class="{ active: isModeratorControlling }" @click="toggleFollow">{{
-        isModeratorControlling ?
-        "Following" : "Controlling" }}
-      </button>
-      <div class="indicator" v-bind:class="{ active: isModeratorControlling }"></div>
-    </div>
-
 
     <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
 
@@ -294,6 +275,12 @@ export default {
       <button @click="() => setMap(true)" class="ui active"><i class="map pin icon"></i></button>
     </div>
 
+      <div class="container-moderator-buttons" v-if="!isUser">
+    <button @click="goHome" class="ui follow-button active"><i class="home icon"></i></button>
+      <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
+    </div>
+
+
     <section :style="panoStyle" id="pano-container">
       <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :pov="pov" :map="mapRef"
         :isUser="isUser" :markers="markers" />
@@ -302,6 +289,13 @@ export default {
 </template>
 
 <style>
+.card {
+    background: var(--surface-card);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
 #map-container .vue-map-container {
   height: 100%;
 }
@@ -313,11 +307,39 @@ export default {
 
 .container-follower {
   position: absolute;
-  position: absolute;
   z-index: 12;
   display: flex;
   align-items: center;
   justify-content: end;
+}
+
+.container-moderator-mode {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  margin: 10px;
+  height: 40px;
+}
+
+.selector {
+  border-radius: 2px;
+}
+
+.container-moderator-buttons {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  bottom: 0;
+  left: 0;
+}
+
+.container-moderator-buttons button {
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+  border-radius: 5px;
 }
 
 .container-map-icon {
@@ -331,7 +353,7 @@ export default {
   border-radius: 2px;
   width: 40px;
   height: 40px;
-  margin: 10px 10px 10px 10px;
+  margin: 10px;
   bottom: 0;
   left: 0;
 }
@@ -341,8 +363,8 @@ export default {
   height: 100%;
   border: none;
   cursor: pointer;
-  border-radius: 2px;
-
+  /* border-radius: 2px; */
+  border-radius: 5px;
 }
 
 .close-map button {
