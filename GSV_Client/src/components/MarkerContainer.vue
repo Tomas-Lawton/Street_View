@@ -1,10 +1,6 @@
-
-/* eslint-disable no-undef */
 <script>
 
 import { defineComponent, h } from 'vue'
-//import ThreeOverlay from "@/components/ThreeOverlay";
-//import Model from "@/components/Model";
 import FBXExample from "@/components/FBXExample.vue"
 
 import { createApp } from "troisjs";
@@ -51,13 +47,11 @@ export default {
     },
   },
   mounted() {
-    console.log('rendered model')
-    console.log(this.position)
-
+    console.log('RERENDERED 3D MODEL AT ', this.position)
 
     this.comp = createApp({
       render: () => h(FBXExample, {
-        modelPath: this.modelPath // Pass modelPath prop to FBXExample component
+        modelPath: this.modelPath
       })
     });
     this.comp.mount(this.node);
@@ -70,24 +64,25 @@ export default {
   beforeUnmount() {
     this.comp.unmount()
     this.comp = null
-    //console.log('unmount', this.node)
   },
   computed: {
     calcDistance() {
       console.log('calculating')
-      const { lat, lng } = store.state.user.position;
+
       if (!(isNaN(this.position.lat) || isNaN(this.position.lng))) {
-        const dist = this.distance(lat, lng, this.position.lat, this.position.lng)
+        const dist = this.distance(
+          store.state.user.position.lat, store.state.user.position.lng, 
+          this.position.lat, this.position.lng
+        )
         console.log("DISTANCE", dist)
         return dist;
-      } 
+      }
     }
   }
 }
 
 </script>
 
-<!-- Todo -->
 <template>
   <div id="test_computed"> {{ calcDistance }} </div>
 </template>

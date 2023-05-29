@@ -93,6 +93,9 @@ export default {
       let string = '[src*="woodie_3.png"]';  ///[id*='someId']
       const elem = document.querySelectorAll(string);
 
+      console.log(this.markers)
+      console.log(this.renderedMarkers)
+
       Array.from(elem).forEach((el, index) => {
         el.parentNode.style.transform = 'scale(1.0)';
         el.parentNode.style.overflow = 'unset';

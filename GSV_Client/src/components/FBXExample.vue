@@ -30,7 +30,7 @@ export default {
     };
   },
   mounted() {
-    console.log(this.modelPath)
+    // console.log(this.modelPath)
     this.renderer = this.$refs.renderer;
   },
   unmounted() {

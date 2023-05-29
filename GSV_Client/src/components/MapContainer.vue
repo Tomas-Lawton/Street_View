@@ -120,10 +120,15 @@ export default {
         alert("Moderator Only :)")
       }
     },
-    markerChangedEvent(position, id) {
-      console.log('changed marker')
+    markerChangedEvent(event, id) {
+      const position = {
+        lat: event.latLng.lat(),
+        lng : event.latLng.lng()
+      };
+
       if (!this.isUser) {
-        this.markers[id].position = position
+        this.markers[id].position = position;
+        console.log(this.markers[id].position)
         if (SocketioService.socket) {
           SocketioService.socket.emit('reposition', { position, id });
         }
@@ -227,9 +232,9 @@ export default {
     });
     socket.on('reposition', (data) => {
       if (this.isUser) {
-        console.log('Received marker event:', data);
+        // console.log('Received marker event:', data);
         this.markers[data.id].position = data.position
-        console.log(this.markers)
+        // console.log(this.markers)
       }
     });
     socket.on('clear', () => {
@@ -268,7 +273,7 @@ export default {
       <GMapMap ref="mapRef" :center=latLng :zoom="40" map-type-id="terrain" @click="mapClickEvent" :options="options"
         @dragstart="hideMenus">
         <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true" :draggable="true"
-          @click="selectMarkerEvent($event, index)" @dragend="markerChangedEvent($event.latLng, index)" />
+          @click="selectMarkerEvent($event, index)" @dragend="markerChangedEvent($event, index)" />
       </GMapMap>
     </section>
     <div class="container-map-icon open-map" v-if="!showMap && isUser">
@@ -279,7 +284,7 @@ export default {
       <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
     </div>
     <section :style="panoStyle" id="pano-container">
-      <StreetView @marker-changed="markerChangedEvent" v-if="isLoaded" :latLng="latLng" :inputPov="inputPov" :map="mapRef"
+      <StreetView v-if="isLoaded" :latLng="latLng" :inputPov="inputPov" :map="mapRef"
         :isUser="isUser" :willUpdate="willUpdate" :markers="markers" />
     </section>
   </div>
