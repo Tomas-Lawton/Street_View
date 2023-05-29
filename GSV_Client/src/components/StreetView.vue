@@ -79,7 +79,6 @@ export default {
         if (SocketioService.socket && this.willUpdate) {
           SocketioService.socket.emit('pov', newPov);
         }
-
       });
     });
 

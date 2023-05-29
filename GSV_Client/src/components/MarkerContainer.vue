@@ -21,13 +21,13 @@ export default {
   },
   methods: {
     checkRenderDistance() {
-      if (this.calcDistance > 0.05) {
+      if (this.calcDistance > 80) { // invisible after 80m
           this.node.style.visibility = "hidden"
         } else {
           this.node.style.visibility = "visible";
         }
     },
-    distance(lat1, lon1, lat2, lon2, unit) {
+    haversineDistance(lat1, lon1, lat2, lon2, unit) {
       if ((lat1 == lat2) && (lon1 == lon2)) {
         return 0;
       } else {
@@ -42,14 +42,7 @@ export default {
         dist = Math.acos(dist);
         dist = dist * 180 / Math.PI;
         dist = dist * 60 * 1.1515;
-        if (unit == "K") {
-          dist = dist * 1.609344
-        }
-        if (unit == "N") {
-          dist = dist * 0.8684
-        }
-        console.log(dist)
-
+        dist = dist * 1609.344; // long live the metric system
         this.checkRenderDistance();
         return dist;
       }
@@ -65,8 +58,18 @@ export default {
     this.node.style.top = '-100px'
     this.node.style.left = '-150px'
     this.node.style.position = 'absolute'
-    this.checkRenderDistance();
 
+    // distance at 1 meter
+    this.node.style.width = 100 + "px";
+    this.node.style.height = 100 + "px";
+
+    // if (this.calcDistance > 1) { // largest size allowed
+    //   // assuming linear scale factor 
+    //   this.node.width = 100 / this.calcDistance;
+    //   this.node.height = 100 / this.calcDistance;
+    // }
+
+    this.checkRenderDistance();
   },
   beforeUnmount() {
     this.comp.unmount()
@@ -74,7 +77,7 @@ export default {
   },
   computed: {
     calcDistance() {
-      return this.distance(
+      return this.haversineDistance(
         store.state.user.position.lat, store.state.user.position.lng, 
         this.position.lat, this.position.lng
       )
@@ -85,10 +88,11 @@ export default {
 </script>
 
 <template>
-  <div id="test_computed"> {{ calcDistance }} </div>
+  <div id="test_computed"> {{ calcDistance }} meters </div>
 </template>
 
 <style>
+
 #test_computed {
   position: absolute;
   z-index: 12;
