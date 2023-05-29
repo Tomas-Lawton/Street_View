@@ -88,6 +88,8 @@ export default {
   },
   methods: {
     checkAllMarkers() {
+      console.log("checking")
+
       let string = '[src*="woodie_3.png"]';  ///[id*='someId']
       const elem = document.querySelectorAll(string);
 
@@ -102,8 +104,9 @@ export default {
 
           this.renderedMarkers.push({
             node: divNode,
-            path: this.markers[index].model
-          })
+            path: this.markers[index].model,
+            markerPosition: this.markers[index].position
+          });
         }
       });
     },
@@ -117,12 +120,7 @@ export default {
     startMutationObserving() {
       const target = document.querySelectorAll('[aria-roledescription="map"]');
 
-      //console.log("MUTATION OBSERVING");
-
       if (!initiated) {
-        //console.log("TARGET");
-        //console.log(target);
-
         const observer = new MutationObserver(list => {
           //console.log("observation test");
           //console.log(list);
@@ -171,15 +169,11 @@ export default {
           icon: icon
         });
 
-
-        // check if on streetview
-        // if !isUser
         google.maps.event.addListener(marker, 'dragend', () => {
           console.log('test')
           const id = marker.icon.url.split('#')[1];
-          const newPosition = marker.position //{ lat: marker.position.lat, lng: marker.position.lng };
+          const newPosition = marker.position;
           this.$emit('marker-changed', newPosition, id);
-          //this.markers[pathName].position = newPosition;
         });
 
         this.gMapsMarkers.push(marker);
@@ -214,7 +208,7 @@ export default {
 <template>
   <section id="pano" ref="pano"></section>
   <MarkerContainer v-for="renderedElem in renderedMarkers" :key="renderedElem.node.id" :node="renderedElem.node"
-    :position="latLng" :modelPath="renderedElem.path" />
+    :position="renderedElem.markerPosition" :modelPath="renderedElem.path" />
 </template>
 
 <style scoped>

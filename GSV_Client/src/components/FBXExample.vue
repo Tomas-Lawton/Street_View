@@ -34,7 +34,7 @@ export default {
     this.renderer = this.$refs.renderer;
   },
   unmounted() {
-    console.log("THREE OVERLAY UNMOUNT")
+    console.log("THREE OVERLAY UNMOUNT Here")
     this.renderer.renderer.forceContextLoss();
     this.renderer = null;
   },

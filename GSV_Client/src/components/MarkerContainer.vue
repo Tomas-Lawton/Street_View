@@ -8,12 +8,13 @@ import { defineComponent, h } from 'vue'
 import FBXExample from "@/components/FBXExample.vue"
 
 import { createApp } from "troisjs";
+import { store } from '@/store'
 
 export default {
   name: "MarkerContainer",
   props: {
     node: Object,
-    position: null,
+    position: Object,
     modelPath: String
   },
   data() {
@@ -44,11 +45,16 @@ export default {
         if (unit == "N") {
           dist = dist * 0.8684
         }
+        console.log(dist)
         return dist;
       }
     },
   },
   mounted() {
+    console.log('rendered model')
+    console.log(this.position)
+
+
     this.comp = createApp({
       render: () => h(FBXExample, {
         modelPath: this.modelPath // Pass modelPath prop to FBXExample component
@@ -68,9 +74,13 @@ export default {
   },
   computed: {
     calcDistance() {
-      const dist = this.distance(this.position.lat, this.position.lng, this.position.lat, this.position.lng)
-      console.log("DISTANCE", this.position, dist)
-      return this.position;
+      console.log('calculating')
+      const { lat, lng } = store.state.user.position;
+      if (!(isNaN(this.position.lat) || isNaN(this.position.lng))) {
+        const dist = this.distance(lat, lng, this.position.lat, this.position.lng)
+        console.log("DISTANCE", dist)
+        return dist;
+      } 
     }
   }
 }
@@ -79,6 +89,17 @@ export default {
 
 <!-- Todo -->
 <template>
-  <section></section>
-  <!-- <div id="test_computed"> {{ calcDistance }} </div> -->
+  <div id="test_computed"> {{ calcDistance }} </div>
 </template>
+
+<style>
+#test_computed {
+  position: absolute;
+  z-index: 12;
+  background-color: white;
+  bottom: 10px;
+  left: 50%;
+  width: 50%;
+  transform: translateX(-50%);
+}
+</style>
