@@ -11,7 +11,7 @@ export default {
   props: {
     node: Object,
     position: Object,
-    modelPath: String
+    modelPath: String,
   },
   data() {
     return {
@@ -20,6 +20,13 @@ export default {
     }
   },
   methods: {
+    checkRenderDistance() {
+      if (this.calcDistance > 0.05) {
+          this.node.style.visibility = "hidden"
+        } else {
+          this.node.style.visibility = "visible";
+        }
+    },
     distance(lat1, lon1, lat2, lon2, unit) {
       if ((lat1 == lat2) && (lon1 == lon2)) {
         return 0;
@@ -42,24 +49,24 @@ export default {
           dist = dist * 0.8684
         }
         console.log(dist)
+
+        this.checkRenderDistance();
         return dist;
       }
     },
   },
   mounted() {
-    console.log('RERENDERED 3D MODEL AT ', this.position)
-
     this.comp = createApp({
       render: () => h(FBXExample, {
         modelPath: this.modelPath
       })
     });
     this.comp.mount(this.node);
-    const markerNode = this.node;
+    this.node.style.top = '-100px'
+    this.node.style.left = '-150px'
+    this.node.style.position = 'absolute'
+    this.checkRenderDistance();
 
-    markerNode.style.top = '-100px'
-    markerNode.style.left = '-150px'
-    markerNode.style.position = 'absolute'
   },
   beforeUnmount() {
     this.comp.unmount()
@@ -67,16 +74,10 @@ export default {
   },
   computed: {
     calcDistance() {
-      console.log('calculating')
-
-      if (!(isNaN(this.position.lat) || isNaN(this.position.lng))) {
-        const dist = this.distance(
-          store.state.user.position.lat, store.state.user.position.lng, 
-          this.position.lat, this.position.lng
-        )
-        console.log("DISTANCE", dist)
-        return dist;
-      }
+      return this.distance(
+        store.state.user.position.lat, store.state.user.position.lng, 
+        this.position.lat, this.position.lng
+      )
     }
   }
 }

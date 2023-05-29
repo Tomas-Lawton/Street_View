@@ -291,6 +291,7 @@ export default {
 </template>
 
 <style>
+
 .card {
   background: var(--surface-card);
   padding: 2rem;

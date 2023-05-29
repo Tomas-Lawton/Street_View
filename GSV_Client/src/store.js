@@ -26,8 +26,7 @@ export const store = new Vuex.Store({
             state.apiKey = string
         },
         updateUserPosition(state, data) {
-            console.log("going to new location: ", data)
-            if(state.user.position != data) {
+            if (state.user.position !== data) {
                 state.user.position = data
             }
         }

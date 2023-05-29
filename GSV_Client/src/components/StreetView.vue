@@ -55,24 +55,23 @@ export default {
     this.map.$mapPromise.then((mapObject) => {
       mapObject.setStreetView(this.pano);
 
-      // User position event
       this.pano.addListener('position_changed', () => {
         const newPosition = this.pano.getPosition();
         mapObject.setCenter(newPosition);
         this.startMutationObserving();
 
+        // Check if the new position is different from the current user position
+        const currentUserPosition = store.state.user.position;
+        const newLat = newPosition.lat();
+        const newLng = newPosition.lng();
+        if (currentUserPosition.lat !== newLat || currentUserPosition.lng !== newLng) {
+          store.commit('updateUserPosition', { lat: newLat, lng: newLng });
 
-        // store.commit('updateUserPosition', {
-        //   lat: newPosition.lat, lng: newPosition.lng
-        // });
-
-        if (SocketioService.socket && this.willUpdate) {
-          SocketioService.socket.emit('position', newPosition);
+          if (SocketioService.socket && this.willUpdate) {
+            SocketioService.socket.emit('position', newPosition);
+          }
         }
-        // Set on the store???
-        console.log("Updated position in streetview")
       });
-
 
       this.pano.addListener("pov_changed", () => {
         let newPov = this.pano.getPov();
@@ -92,9 +91,6 @@ export default {
 
       let string = '[src*="woodie_3.png"]';  ///[id*='someId']
       const elem = document.querySelectorAll(string);
-
-      console.log(this.markers)
-      console.log(this.renderedMarkers)
 
       Array.from(elem).forEach((el, index) => {
         el.parentNode.style.transform = 'scale(1.0)';
