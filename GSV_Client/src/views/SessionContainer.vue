@@ -6,7 +6,7 @@ import { computed, ref } from 'vue';
 import StreetView from "@/components/StreetView.vue";
 import ModeratorMode from "@/components/ModeratorMode.vue";
 import SocketioService from "../services/socket";
-import SelectDropdown from "@/components/SelectDropdown.vue";
+import MarkerDropdown from "@/components/MarkerDropdown.vue";
 import LocationInput from "@/components/LocationInput.vue";
 import MiniMap from "@/components/MiniMap.vue";
 import Panorama from "@/components/Panorama.vue";
@@ -14,7 +14,7 @@ import Panorama from "@/components/Panorama.vue";
 export default {
   name: 'SessionContainer',
   components: {
-    StreetView, SelectDropdown, ModeratorMode, LocationInput, Panorama, MiniMap
+    StreetView, MarkerDropdown, ModeratorMode, LocationInput, Panorama, MiniMap
   },
   props: {
     position: Object,
@@ -43,7 +43,12 @@ export default {
       return (this.selectedMode === "Controlling" && this.isUser)
         || (this.selectedMode === "Following" && !this.isUser)
     },
-
+    deleteButtonStyle () {
+      return {
+        left: this.menuPosition.x + 'px',
+        top: this.menuPosition.y + 'px'
+      }
+    }
   },
   data() {
     return {
@@ -225,41 +230,43 @@ export default {
 }
 </script>
 
-<template :class="sessionKey">
-  <div id="map_wrapper">
+<template>
+  <section id="session-container" :class="sessionKey">
 
     <LocationInput />
     <ModeratorMode v-if="!isUser" :setFollowMode="setFollowMode" />
 
-
-
-
-    <!-- Map Controls -->
-    <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
-    <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="{
-        left: menuPosition.x + 'px',
-        top: menuPosition.y + 'px'
-      }">Remove
-      <i class="window close icon"></i>
-    </button>
-    <div class="container-map-icon open-map" v-if="!showMap && isUser">
-      <button @click="() => setMap(true)" class="ui active"><i class="map pin icon"></i></button>
-    </div>
-    <div class="container-moderator-buttons" v-if="!isUser">
-      <button @click="goHome" class="ui follow-button active"><i class="home icon"></i></button>
-      <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
-    </div>
-
     <MiniMap v-if="showMap" :isUser="isUser" :startingPosition="startingPosition" :markers="markers" ref="miniMapRef" />
-
     <Panorama v-if="isLoaded" :mapRef="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
       :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition" />
+    <MarkerDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
 
-  </div>
+    <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="deleteButtonStyle">
+      Remove <i class="window close icon"></i>
+    </button>
+
+    <div class="container-map-icon open-map" v-if="!showMap && isUser">
+      <button @click="() => setMap(true)" class="ui active">
+        <i class="map pin icon"></i>
+      </button>
+    </div>
+
+    <div class="container-moderator-buttons" v-if="!isUser">
+      <button @click="goHome" class="ui follow-button active">
+        <i class="home icon"></i>
+      </button>
+      <button @click="clearMarkers" class="ui follow-button active">
+        <i class="map marker alternate icon"></i>
+      </button>
+    </div>
+
+  </section>
 </template>
 
 <style>
-#map_wrapper {
+
+
+#session-container {
   display: flex;
 }
 

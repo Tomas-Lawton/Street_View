@@ -1,7 +1,7 @@
 <script>
 
 export default {
-  name: 'SelectDropdown',
+  name: 'MarkerDropdown',
   props: {
     menuPosition: Object,
     createMarker: Function,

@@ -35,7 +35,7 @@
 
   <template>
     <div>
-      <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
+      <MarkerDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
       <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="deleteButtonStyle">
         Remove
         <i class="window close icon"></i>
