@@ -1,13 +1,11 @@
 import { createWebHistory, createRouter } from "vue-router";
-import SessionContainer from "@/views/SessionContainer.vue";
-import Authentication from "@/views/Authentication.vue";
 import { store } from '@/store'
 
 const routes = [
     {
         path: '/',
         name: `Home`,
-        component: SessionContainer,
+        component: () => import("@/views/SessionContainer.vue"),
         meta: {
             requiresAuth: true
         },
@@ -16,7 +14,7 @@ const routes = [
     {
         path: "/user",
         name: "User",
-        component: SessionContainer,
+        component: () => import("@/views/SessionContainer.vue"),
         meta: {
             requiresAuth: true
         },
@@ -25,7 +23,7 @@ const routes = [
     {
         path: "/moderator",
         name: "Moderator",
-        component: SessionContainer,
+        component: () => import("@/views/SessionContainer.vue"),
         meta: {
             requiresAuth: true
         },
@@ -34,7 +32,7 @@ const routes = [
     {
         path: "/login",
         name: "Login",
-        component: Authentication,
+        component: () => import("@/views/Authentication.vue"),
     },
 ];
 
@@ -42,15 +40,11 @@ console.log("Available routes: ", routes)
 
 const router = createRouter({
     history: createWebHistory(),
-    base: import.meta.env.BASE_URL,
+    base: '/',
     routes,
 });
 
-router.beforeEach((to, from, next)=>{
-    // console.log(to.name);
-    // console.log("state loggedin", store.state.isLoggedIn);
-    // console.log("api key", store.state.apiKey);
-
+router.beforeEach((to, from, next)=> {
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!store.state.isLoggedIn) {
             next({
