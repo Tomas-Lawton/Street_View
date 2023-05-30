@@ -220,11 +220,9 @@ export default {
       }
     });
     socket.on('marker', (data) => {
-      if (this.isUser) {
         console.log('Received marker event:', data);
         this.markers.push(data);
         console.log(this.markers)
-      }
     });
     socket.on('delete', (data) => {
       if (this.isUser) {
@@ -245,6 +243,10 @@ export default {
         console.log(this.markers)
       }
     });
+
+    let setPov = this.userPov;
+    setPov.zoom = this.isUser ? .5 : 1.5;
+    this.updatePov(setPov)
   },
   beforeUnmount() {
     SocketioService.disconnect();

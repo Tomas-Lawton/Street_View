@@ -84,7 +84,7 @@ export default {
 </script>
 
 <template>
-  <div  v-if="isVisible" id="marker-container" ref="markerContainer"></div>
+  <div v-if="isVisible" id="marker-container" ref="markerContainer"></div>
   <div id="test_computed"> {{ calcHaversineDistance }} meters </div>
 </template>
 

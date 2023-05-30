@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('disconnected user:', socket.id);
-    if (!connections.length) {
+    if (connections.length === 0) {
       markers = []
     }
   });
