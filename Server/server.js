@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   cors: {
-    origins: ['http://localhost:8081', "https://static-ai-street-view.onrender.com:10000"]
+    origins: ['http://localhost:8081', "https://static-ai-street-view.onrender.com"]
   }
 });
 
