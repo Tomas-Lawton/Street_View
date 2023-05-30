@@ -34,6 +34,11 @@ const routes = [
         name: "Login",
         component: () => import("@/views/Authentication.vue"),
     },
+    {
+        path: '*',
+        name: "NotFound",
+        component: NotFound
+    }
 ];
 
 console.log("Available routes: ", routes)
@@ -44,7 +49,7 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next)=> {
+router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!store.state.isLoggedIn) {
             next({
