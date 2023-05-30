@@ -6,7 +6,9 @@ class SocketioService {
         this.socket = null;
     }
     setupSocketConnection(isUser = true) {
-        this.socket = io(import.meta.env.NODE_ENV === "production" ?
+        const mode = import.meta.env.NODE_ENV;
+        console.log(mode)
+        this.socket = io(mode === "production" ?
             "https://ai-street-view.onrender.com:10000" : "http://localhost:8080");
         this.socket.emit('login', isUser ? "User" : "Moderator");
         return this.socket
