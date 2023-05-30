@@ -11,13 +11,14 @@ app.use(express.urlencoded({ extended: true }));
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   cors: {
-    origins: ['http://localhost:8081', "https://static-ai-street-view.onrender.com:10000"]
+    origins: ['http://localhost:8081', "https://static-ai-street-view.onrender.com"]
   }
 });
 
 const config = require('./conf.js');
 const path = __dirname + '/app/views/';
 const PORT = process.env.PORT || 8080;
+console.log(PORT)
 
 let connections = [];
 let markers = [];
