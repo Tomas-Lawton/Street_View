@@ -8,9 +8,7 @@ export default defineConfig({
     alias: { "@": path.resolve(__dirname, "./src") },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
   },
-  base: process.env.NODE_ENV === 'production'
-  ? '/streetview'
-  : '/',
+  base: '/',
   optimizeDeps: {
     include: [
       "@fawmi/vue-google-maps",
