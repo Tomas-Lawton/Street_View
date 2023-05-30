@@ -1,14 +1,16 @@
 <script>
 
-import StreetView from "@/components/StreetView.vue";
-import SelectDropdown from "@/components/SelectDropdown.vue";
-import SocketioService from "../services/socket";
 import { useStore } from 'vuex';
-import { computed } from 'vue'
+import { computed } from 'vue';
+
+import StreetView from "@/components/StreetView.vue";
+import ModeratorMode from "@/components/ModeratorMode.vue";
+import SocketioService from "../services/socket";
+import SelectDropdown from "@/components/SelectDropdown.vue";
 
 export default {
   name: 'Map-Component',
-  components: { StreetView, SelectDropdown },
+  components: { StreetView, SelectDropdown, ModeratorMode },
   props: {
     position: Object,
     isUser: Boolean
@@ -47,9 +49,9 @@ export default {
           : "50vw", "height": "100vh"
       }
     },
-    willControl() {
-      return (this.selectedMode === "Controlling");
-    },
+    // willControl() {
+    //   return (this.selectedMode === "Controlling");
+    // },
     willUpdate() {
       return (this.selectedMode !== "Free") // Ignores the free mode
     },
@@ -81,11 +83,6 @@ export default {
       selectedMarker: null,
       showMap: true,
       selectedMode: "Controlling",
-      dropdownOptions: [
-        "Controlling",
-        "Following",
-        "Free",
-      ],
       startingPosition: this.userPosition
     }
   },
@@ -160,7 +157,8 @@ export default {
       this.selectedMarker = null;
       this.showRemove = false;
     },
-    setFollowMode() {
+    setFollowMode(setMode) {
+      this.selectedMode = setMode;
       if (SocketioService.socket) {
         SocketioService.socket.emit('controlling', this.selectedMode);
         if (this.selectedMode !== "Free") {
@@ -256,11 +254,8 @@ export default {
 
 <template>
   <div id="map_wrapper" style="display: flex;">
-    <div v-if="!isUser" class="container-moderator-mode">
-      <SelectButton v-model="selectedMode" :options="dropdownOptions" unselectable="false" class="selector"
-        @click="setFollowMode" />
-      <div class="indicator" :class="{ active: !willControl }"></div>
-    </div>
+
+    <ModeratorMode v-if="!isUser" :setFollowMode="() => setFollowMode"/>
 
     <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
     <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="{
@@ -318,20 +313,7 @@ export default {
   justify-content: end;
 }
 
-.container-moderator-mode {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  top: 0;
-  left: 0;
-  z-index: 12;
-  margin: 10px;
-  height: 40px;
-}
 
-.selector {
-  border-radius: 2px;
-}
 
 .container-moderator-buttons {
   position: absolute;
@@ -431,21 +413,6 @@ i.marker.icon {
 .active.follow-button:hover {
   background: #222222;
   color: #fff;
-}
-
-
-.indicator {
-  width: 12px;
-  height: 12px;
-  background: orange;
-  border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
-  transition: .6s;
-  margin-left: 10px;
-}
-
-.active.indicator {
-  background: rgb(41, 183, 41);
 }
 
 .delete-button {
