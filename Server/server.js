@@ -4,7 +4,7 @@ var _ = require('lodash');
 
 const app = express();
 app.use(cors({ origin: "http://localhost:8081" }));
-app.use(cors({ origin: "https://static-ai-street-view.onrender.com/" }));
+app.use(cors({ origin: "https://static-ai-street-view.onrender.com:10000" }));
 // app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -13,7 +13,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   cors: {
     // origins: ['*']
-    origins: ['http://localhost:8080', "https://static-ai-street-view.onrender.com/"]
+    origins: ['http://localhost:8080', "https://static-ai-street-view.onrender.com:10000"]
   }
 });
 
@@ -25,7 +25,6 @@ let connections = [];
 let markers = [];
 let position = { lat: 0, lng: 0 };
 let pov = { heading: 0, pitch: 0 }
-
 
 io.on('connection', (socket) => {
   // Connect and load markers for joining clients
