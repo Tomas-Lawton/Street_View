@@ -35,7 +35,7 @@ const routes = [
         component: () => import("@/views/Authentication.vue"),
     },
     {
-        path: '*',
+        path: "/:catchAll(.*)",
         name: "NotFound",
         redirect: '/404'
     }
