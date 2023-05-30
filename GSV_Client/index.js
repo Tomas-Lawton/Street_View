@@ -1,6 +1,6 @@
 import App from "@/App";
 import VueGoogleMaps from '@fawmi/vue-google-maps'
-import router from './router'
+import router from '@/router'
 import PrimeVue from 'primevue/config';
 
 import { createApp } from 'vue'
