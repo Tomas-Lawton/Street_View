@@ -3,7 +3,8 @@
 import StreetView from "@/components/StreetView.vue";
 import SelectDropdown from "@/components/SelectDropdown.vue";
 import SocketioService from "../services/socket";
-import { store } from '@/store'
+import { useStore } from 'vuex';
+import { computed } from 'vue'
 
 export default {
   name: 'Map-Component',
@@ -11,6 +12,17 @@ export default {
   props: {
     position: Object,
     isUser: Boolean
+  },
+  setup() {
+    const store = useStore();
+    const userPosition = computed(() => store.state.user.position);
+    const userPov = computed(() => store.state.user.pov);
+    return {
+      userPosition,
+      userPov,
+      updatePosition: (data) => store.commit('updateUserPosition', data),
+      updatePov: (data) => store.commit('updateUserPov', data),
+    };
   },
   computed: {
     mapStyle() {
@@ -22,6 +34,7 @@ export default {
         "bottom": "0px",
         "left": "0px",
         "transform": "translateX(10px) translateY(-10px)",
+        "box-shadow": "rgba(0, 0, 0, 0.3) 0px 1px 4px -1px"
       } :
         {
           "width": "50vw",
@@ -33,9 +46,6 @@ export default {
         "width": this.isUser ? "100%"
           : "50vw", "height": "100vh"
       }
-    },
-    latLng() {
-      return store.state.user.position
     },
     willControl() {
       return (this.selectedMode === "Controlling");
@@ -52,11 +62,6 @@ export default {
   data() {
     return {
       markers: [],
-      inputPov: {
-        heading: 0,
-        pitch: 0,
-        zoom: this.isUser ? .5 : 1.5
-      },
       mapRef: null,
       isLoaded: false,
       options: {
@@ -80,7 +85,8 @@ export default {
         "Controlling",
         "Following",
         "Free",
-      ]
+      ],
+      startingPosition: this.userPosition
     }
   },
   methods: {
@@ -123,7 +129,7 @@ export default {
     markerChangedEvent(event, id) {
       const position = {
         lat: event.latLng.lat(),
-        lng : event.latLng.lng()
+        lng: event.latLng.lng()
       };
 
       if (!this.isUser) {
@@ -157,19 +163,16 @@ export default {
     setFollowMode() {
       if (SocketioService.socket) {
         SocketioService.socket.emit('controlling', this.selectedMode);
-        // Also snap to the current pos/pov
-        // if (this.selectedMode !== "Free") {
-        //   console.log("Snap to pos/pov")
-        //   console.log("UPDATE: ", store.state.user.position)
-        //   SocketioService.socket.emit('position', store.state.user.position);
-        //   SocketioService.socket.emit('pov', this.inputPov);
-        // }
+        if (this.selectedMode !== "Free") {
+          SocketioService.socket.emit('position', this.userPosition);
+          SocketioService.socket.emit('pov', this.userPov);
+        }
       }
     },
     goHome() {
-      store.commit('updateUserPosition', {
+      this.updatePosition({
         lat: -33.8985415, lng: 151.169633
-      });
+      })
     },
     clearMarkers() {
       this.markers = [];
@@ -203,17 +206,17 @@ export default {
     socket.on('position', (data) => {
       if (this.willFollow) {
         console.log('Received position event:', data);
-        store.commit('updateUserPosition', {
+        this.updatePosition({
           lat: data.lat,
           lng: data.lng
-        });
+        })
       }
     });
-    socket.on('pov', (data) => {
+    socket.on('pov', data => {
       if (this.willFollow) {
         console.log('Received pov event:', data);
-        this.inputPov = data;
-        this.inputPov.zoom = this.isUser ? .5 : 1.5;
+        data.zoom = this.isUser ? .5 : 1.5;
+        this.updatePov(data)
       }
     });
     socket.on('marker', (data) => {
@@ -232,9 +235,7 @@ export default {
     });
     socket.on('reposition', (data) => {
       if (this.isUser) {
-        // console.log('Received marker event:', data);
         this.markers[data.id].position = data.position
-        // console.log(this.markers)
       }
     });
     socket.on('clear', () => {
@@ -254,12 +255,12 @@ export default {
 <template>
   <div id="map_wrapper" style="display: flex;">
     <div v-if="!isUser" class="container-moderator-mode">
-      <SelectButton v-model="selectedMode" :options="dropdownOptions" :unselectable="false" class="selector"
+      <SelectButton v-model="selectedMode" :options="dropdownOptions" unselectable="false" class="selector"
         @click="setFollowMode" />
       <div class="indicator" :class="{ active: !willControl }"></div>
     </div>
+
     <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
-    <!-- TO DO refactor as component -->
     <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="{
         left: menuPosition.x + 'px',
         top: menuPosition.y + 'px'
@@ -270,8 +271,8 @@ export default {
       <div class="container-map-icon close-map" v-if="isUser">
         <button @click="() => setMap(false)" class="ui active"><i class="close icon"></i></button>
       </div>
-      <GMapMap ref="mapRef" :center=latLng :zoom="40" map-type-id="terrain" @click="mapClickEvent" :options="options"
-        @dragstart="hideMenus">
+      <GMapMap ref="mapRef" :center="startingPosition" :zoom="40" map-type-id="terrain" @click="mapClickEvent"
+        :options="options" @dragstart="hideMenus">
         <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true" :draggable="true"
           @click="selectMarkerEvent($event, index)" @dragend="markerChangedEvent($event, index)" />
       </GMapMap>
@@ -284,14 +285,13 @@ export default {
       <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
     </div>
     <section :style="panoStyle" id="pano-container">
-      <StreetView v-if="isLoaded" :latLng="latLng" :inputPov="inputPov" :map="mapRef"
-        :isUser="isUser" :willUpdate="willUpdate" :markers="markers" />
+      <StreetView v-if="isLoaded" :map="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
+        :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition" />
     </section>
   </div>
 </template>
 
 <style>
-
 .card {
   background: var(--surface-card);
   padding: 2rem;
@@ -389,8 +389,6 @@ export default {
   margin: 0;
   font-size: 1.6em;
 }
-
-
 
 .follow-button {
   margin: 10px 0 10px 10px;

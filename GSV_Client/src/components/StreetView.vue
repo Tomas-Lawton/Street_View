@@ -11,11 +11,13 @@ export default {
   components: { MarkerContainer },
   props: {
     map: Object,
-    latLng: Object,
-    inputPov: Object,
     markers: [Object],
     isUser: Boolean,
-    willUpdate: Boolean
+    willUpdate: Boolean,
+    userPosition: Object,
+    userPov: Object,
+    updatePosition: { type: Function },
+    updatePov: { type: Function },
   },
   emits: ['marker-changed'],
   data() {
@@ -23,18 +25,15 @@ export default {
       pano: null,
       gMapsMarkers: [],
       renderedMarkers: [],
+      isInitialized: false,
     }
   },
   mounted() {
-    initiated = false;
-    console.log("Mounted ", this.pov)
-    try {
-      this.pano = new google.maps.StreetViewPanorama(this.$refs["pano"], {
-        position: {
-          lat: this.latLng.lat,
-          lng: this.latLng.lng
-        },
-        pov: this.inputPov,
+    this.pano = new google.maps.StreetViewPanorama(
+      this.$refs["pano"],
+      {
+        position: this.userPosition,
+        pov: this.userPov,
         addressControlOptions: {
           position: google.maps.ControlPosition.LEFT_BOTTOM
         },
@@ -47,26 +46,21 @@ export default {
         showRoadLabels: false,
         addressControl: false
       });
-      console.log(this.pano)
-    } catch (e) {
-      console.log("Couldn't create street view: ", e)
-    }
 
     this.map.$mapPromise.then((mapObject) => {
       mapObject.setStreetView(this.pano);
 
       this.pano.addListener('position_changed', () => {
         const newPosition = this.pano.getPosition();
+        const currentPosition = store.state.user.position;
+        const newLat = newPosition.lat();
+        const newLng = newPosition.lng();
+
         mapObject.setCenter(newPosition);
         this.startMutationObserving();
 
-        // Check if the new position is different from the current user position
-        const currentUserPosition = store.state.user.position;
-        const newLat = newPosition.lat();
-        const newLng = newPosition.lng();
-        if (currentUserPosition.lat !== newLat || currentUserPosition.lng !== newLng) {
-          store.commit('updateUserPosition', { lat: newLat, lng: newLng });
-
+        if (currentPosition.lat !== newLat || currentPosition.lng !== newLng) {
+          this.updatePosition({ lat: newLat, lng: newLng });
           if (SocketioService.socket && this.willUpdate) {
             SocketioService.socket.emit('position', newPosition);
           }
@@ -76,13 +70,18 @@ export default {
       this.pano.addListener("pov_changed", () => {
         let newPov = this.pano.getPov();
         newPov.zoom = this.isUser ? .5 : 1.5;
-        if (SocketioService.socket && this.willUpdate) {
-          SocketioService.socket.emit('pov', newPov);
+
+        if (store.state.user.pov !== newPov) {
+          this.updatePov(newPov);
+          if (SocketioService.socket && this.willUpdate) {
+            SocketioService.socket.emit('pov', newPov);
+          }
         }
       });
     });
 
     this.addMarkersToPano();
+    this.isInitialized = true;
   },
   methods: {
     checkAllMarkers() {
@@ -120,32 +119,19 @@ export default {
 
       if (!initiated) {
         const observer = new MutationObserver(list => {
-          //console.log("observation test");
-          //console.log(list);
-
           for (const mutation of list) {
             if (mutation.type == "attributes") {
-              //console.log("ATTRIBUTE CHANGED");
-              //console.log(mutation);
-
               this.checkAllMarkers();
-
             } else if (mutation.type == "childList") {
-              //console.log("IMAGE ADDED");
               this.checkAllMarkers();
-
             }
           }
-
         });
         observer.observe(target[1], { attributes: true, attributeFilter: ['src'], childList: true, subtree: true });
-
         initiated = true;
       }
     },
     addMarkersToPano() {
-      //console.log("WATCH MARKERS", this.markers.length);
-
       this.renderedMarkers = [];
       this.hideAllMarker();
 
@@ -179,18 +165,26 @@ export default {
     }
   },
   watch: {
-    latLng: {
+    userPosition: {
       handler: function (val) {
-        console.log(val)
-        this.pano.setPosition(val)
+        console.log("set new pos ", val)
+        if (this.isInitialized && this.pano) {
+          this.pano.setPosition(val)
+        }
       },
-      deep: true
+      deep: true,
     },
-    inputPov: {
+    userPov: {
       handler: function (val) {
-        this.pano.setPov(val);
+        console.log("set new pov ", val)
+        if (this.isInitialized && this.pano) {
+          if (this.pano.pov !== val) {
+            this.pano.setPov(val);
+          }
+        }
       },
-      deep: true
+      deep: true,
+      immediate: true
     },
     markers: {
       handler: function () {
@@ -198,7 +192,7 @@ export default {
       },
       deep: true,
       immediate: true
-    }
+    },
   }
 }
 </script>
