@@ -37,7 +37,7 @@ const routes = [
     {
         path: '*',
         name: "NotFound",
-        component: NotFound
+        redirect: '/404'
     }
 ];
 
