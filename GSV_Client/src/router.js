@@ -1,5 +1,5 @@
 import { createWebHistory, createRouter } from "vue-router";
-import Session from "@/views/Session.vue";
+import SessionContainer from "@/views/SessionContainer.vue";
 import Authentication from "@/views/Authentication.vue";
 import { store } from '@/store'
 
@@ -7,7 +7,7 @@ const routes = [
     {
         path: '/',
         name: `Home`,
-        component: Session,
+        component: SessionContainer,
         meta: {
             requiresAuth: true
         },
@@ -16,7 +16,7 @@ const routes = [
     {
         path: "/user",
         name: "User",
-        component: Session,
+        component: SessionContainer,
         meta: {
             requiresAuth: true
         },
@@ -25,7 +25,7 @@ const routes = [
     {
         path: "/moderator",
         name: "Moderator",
-        component: Session,
+        component: SessionContainer,
         meta: {
             requiresAuth: true
         },

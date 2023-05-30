@@ -1,16 +1,21 @@
 <script>
 
 import { useStore } from 'vuex';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import StreetView from "@/components/StreetView.vue";
 import ModeratorMode from "@/components/ModeratorMode.vue";
 import SocketioService from "../services/socket";
 import SelectDropdown from "@/components/SelectDropdown.vue";
+import LocationInput from "@/components/LocationInput.vue";
+import MiniMap from "@/components/MiniMap.vue";
+import Panorama from "@/components/Panorama.vue";
 
 export default {
-  name: 'Map-Component',
-  components: { StreetView, SelectDropdown, ModeratorMode },
+  name: 'SessionContainer',
+  components: {
+    StreetView, SelectDropdown, ModeratorMode, LocationInput, Panorama, MiniMap
+  },
   props: {
     position: Object,
     isUser: Boolean
@@ -19,6 +24,7 @@ export default {
     const store = useStore();
     const userPosition = computed(() => store.state.user.position);
     const userPov = computed(() => store.state.user.pov);
+
     return {
       userPosition,
       userPov,
@@ -27,49 +33,23 @@ export default {
     };
   },
   computed: {
-    mapStyle() {
-      return this.isUser ? {
-        "width": "20vw",
-        "height": "20vw",
-        "position": "absolute",
-        "z-index": "20",
-        "bottom": "0px",
-        "left": "0px",
-        "transform": "translateX(10px) translateY(-10px)",
-        "box-shadow": "rgba(0, 0, 0, 0.3) 0px 1px 4px -1px"
-      } :
-        {
-          "width": "50vw",
-          "height": "100vh"
-        }
+    sessionKey() {
+      return this.isUser ? "user" : "moderator"
     },
-    panoStyle() {
-      return {
-        "width": this.isUser ? "100%"
-          : "50vw", "height": "100vh"
-      }
-    },
-    // willControl() {
-    //   return (this.selectedMode === "Controlling");
-    // },
     willUpdate() {
       return (this.selectedMode !== "Free") // Ignores the free mode
     },
     willFollow() {
-      // makes mod follow in follow mode and user follow in control mode
       return (this.selectedMode === "Controlling" && this.isUser)
         || (this.selectedMode === "Following" && !this.isUser)
     },
+
   },
   data() {
     return {
       markers: [],
       mapRef: null,
       isLoaded: false,
-      options: {
-        mapTypeControl: false,
-        fullscreenControl: false,
-      },
       showDropdown: false,
       menuPosition: {
         x: 0,
@@ -181,17 +161,10 @@ export default {
     },
   },
   mounted() {
-    this.$refs.mapRef.$mapPromise.then((mapObject) => {
-
+    this.$refs.miniMapRef.mapRef.$mapPromise.then((mapObject) => {
+      console.log("loaded mini map")
       this.isLoaded = true
-      console.log("loaded")
-      this.mapRef = this.$refs.mapRef
-
-      mapObject.addListener("center_changed", () => {
-        // 3 seconds after the center of the map has changed, pan back to the
-        // marker.
-      });
-
+      this.mapRef = this.$refs.miniMapRef.mapRef
     });
 
     const socket = SocketioService.setupSocketConnection(this.isUser);
@@ -218,9 +191,9 @@ export default {
       }
     });
     socket.on('marker', (data) => {
-        console.log('Received marker event:', data);
-        this.markers.push(data);
-        console.log(this.markers)
+      console.log('Received marker event:', data);
+      this.markers.push(data);
+      console.log(this.markers)
     });
     socket.on('delete', (data) => {
       if (this.isUser) {
@@ -252,11 +225,16 @@ export default {
 }
 </script>
 
-<template>
-  <div id="map_wrapper" style="display: flex;">
+<template :class="sessionKey">
+  <div id="map_wrapper">
 
-    <ModeratorMode v-if="!isUser" :setFollowMode="() => setFollowMode"/>
+    <LocationInput />
+    <ModeratorMode v-if="!isUser" :setFollowMode="setFollowMode" />
 
+
+
+
+    <!-- Map Controls -->
     <SelectDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
     <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="{
         left: menuPosition.x + 'px',
@@ -264,16 +242,6 @@ export default {
       }">Remove
       <i class="window close icon"></i>
     </button>
-    <section v-if="showMap" :style="mapStyle" id="map-container" ref="map">
-      <div class="container-map-icon close-map" v-if="isUser">
-        <button @click="() => setMap(false)" class="ui active"><i class="close icon"></i></button>
-      </div>
-      <GMapMap ref="mapRef" :center="startingPosition" :zoom="40" map-type-id="terrain" @click="mapClickEvent"
-        :options="options" @dragstart="hideMenus">
-        <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true" :draggable="true"
-          @click="selectMarkerEvent($event, index)" @dragend="markerChangedEvent($event, index)" />
-      </GMapMap>
-    </section>
     <div class="container-map-icon open-map" v-if="!showMap && isUser">
       <button @click="() => setMap(true)" class="ui active"><i class="map pin icon"></i></button>
     </div>
@@ -281,14 +249,29 @@ export default {
       <button @click="goHome" class="ui follow-button active"><i class="home icon"></i></button>
       <button @click="clearMarkers" class="ui follow-button active"><i class="map marker alternate icon"></i></button>
     </div>
-    <section :style="panoStyle" id="pano-container">
-      <StreetView v-if="isLoaded" :map="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
-        :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition" />
-    </section>
+
+    <MiniMap v-if="showMap" :isUser="isUser" :startingPosition="startingPosition" :markers="markers" ref="miniMapRef" />
+
+    <Panorama v-if="isLoaded" :mapRef="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
+      :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition" />
+
   </div>
 </template>
 
 <style>
+#map_wrapper {
+  display: flex;
+}
+
+.gm-style-cc {
+  display: none;
+}
+
+.gm-style div a img {
+  display: none;
+}
+
+
 .card {
   background: var(--surface-card);
   padding: 2rem;
