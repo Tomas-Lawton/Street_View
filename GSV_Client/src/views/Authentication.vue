@@ -26,6 +26,9 @@ export default {
       //this.$router.replace(sessionStorage.getItem('redirectPath') || '/defaultpath');
       //sessionStorage.removeItem('redirectPath');
     }
+  },
+  mounted() {
+    console.log("Loaded Auth View");
   }
 }
 </script>

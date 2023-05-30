@@ -35,7 +35,7 @@ const routes = [
         path: "/login",
         name: "Login",
         component: Authentication,
-    }
+    },
 ];
 
 const router = createRouter({
@@ -45,9 +45,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next)=>{
-    console.log(to.name);
-    console.log("state loggedin", store.state.isLoggedIn);
-    console.log("api key", store.state.apiKey);
+    // console.log(to.name);
+    // console.log("state loggedin", store.state.isLoggedIn);
+    // console.log("api key", store.state.apiKey);
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!store.state.isLoggedIn) {
