@@ -18,6 +18,7 @@ const io = require('socket.io')(http, {
 const config = require('./conf.js');
 const path = __dirname + '/app/views/';
 const PORT = process.env.PORT || 8080;
+console.log(PORT)
 
 let connections = [];
 let markers = [];
