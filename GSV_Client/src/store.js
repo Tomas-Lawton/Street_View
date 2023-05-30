@@ -32,11 +32,11 @@ export const store = new Vuex.Store({
         },
         updateUserPosition(state, data) {
             state.user = { ...state.user, position: data };
-            console.log("updated position")
+            // console.log("updated position")
         },
         updateUserPov(state, data) {
             state.user = { ...state.user, pov: data };
-            console.log("updated pov")
+            // console.log("updated pov")
         }
     },
     actions: {} //these commit the mutations to the state and handle business logic

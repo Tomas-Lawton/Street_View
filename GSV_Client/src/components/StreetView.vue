@@ -85,13 +85,12 @@ export default {
   },
   methods: {
     checkAllMarkers() {
-      console.log("checking")
 
       let string = '[src*="woodie_3.png"]';  ///[id*='someId']
       const elem = document.querySelectorAll(string);
 
       Array.from(elem).forEach((el, index) => {
-        el.parentNode.style.transform = 'scale(1.0)';
+        // el.parentNode.style.transform = 'scale(1.0)';
         el.parentNode.style.overflow = 'unset';
 
         if (el.parentNode.childElementCount == 1) {
@@ -149,7 +148,8 @@ export default {
         const marker = new google.maps.Marker({
           position: this.markers[i].position,
           map: this.pano,
-          draggable: false,
+          // optimized: false,
+          draggable: true,
           icon: icon
         });
 
@@ -167,7 +167,7 @@ export default {
   watch: {
     userPosition: {
       handler: function (val) {
-        console.log("set new pos ", val)
+        // console.log("set new pos ", val)
         if (this.isInitialized && this.pano) {
           this.pano.setPosition(val)
         }
@@ -176,7 +176,7 @@ export default {
     },
     userPov: {
       handler: function (val) {
-        console.log("set new pov ", val)
+        // console.log("set new pov ", val)
         if (this.isInitialized && this.pano) {
           if (this.pano.pov !== val) {
             this.pano.setPov(val);
@@ -200,7 +200,7 @@ export default {
 <template>
   <section id="pano" ref="pano"></section>
   <MarkerContainer v-for="renderedElem in renderedMarkers" :key="renderedElem.node.id" :node="renderedElem.node"
-    :position="renderedElem.markerPosition" :modelPath="renderedElem.path" />
+    :position="renderedElem.markerPosition" :modelPath="renderedElem.path"/>
 </template>
 
 <style scoped>
@@ -210,4 +210,6 @@ export default {
   width: 100%;
   background-color: #ff5a5f;
 }
+
+
 </style>

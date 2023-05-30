@@ -1,8 +1,8 @@
 <script>
 
-import { defineComponent, h } from 'vue'
 import FBXExample from "@/components/FBXExample.vue"
 
+import { defineComponent, h } from 'vue'
 import { createApp } from "troisjs";
 import { store } from '@/store'
 
@@ -22,37 +22,24 @@ export default {
   },
   methods: {
     checkRenderDistance() {
-      if (this.calcHaversineDistance > 80) {
+      if (this.haversineDistance > 80) {
         this.isVisible = false;
       } else {
         this.isVisible = true;
       }
+    },
+    calculateScale() {
+      // maps does not scale marker fast enough, so this makes the scaling a bit faster.
+      const ratio = 20; // the higher number, the closer it will be to the maps default until they are the same.
+      const meters = this.calcDistance;
+      const maxSize = 0.8; // this is so when you are really close, the animation is not a giant
+      const scale = Math.min(ratio / meters, maxSize);
+      this.node.style.transform = `scale(${scale})`;
+      console.log(`item ${meters} meters away to scaled to size ${scale}`)
     }
   },
-  mounted() {
-    this.comp = createApp({
-      render: () => h(FBXExample, { //virtual dom node
-        modelPath: this.modelPath
-      })
-    });
-    // this.comp.mount(this.$refs.markerContainer);
-    // this.$refs.markerContainer.style.top = '-100px';
-    // this.$refs.markerContainer.style.left = '-150px';
-    // this.$refs.markerContainer.style.position = 'absolute';
-    
-    this.comp.mount(this.node);
-    this.node.style.top = '-100px';
-    this.node.style.left = '-150px';
-    this.node.style.position = 'absolute';
-
-    this.checkRenderDistance();
-  },
-  beforeUnmount() {
-    this.comp.unmount()
-    this.comp = null
-  },
   computed: {
-    calcHaversineDistance() {
+    calcDistance() {
       const userPosition = this.$store.state.user.position;
       const markerPosition = this.position;
       const lat1 = userPosition.lat;
@@ -60,6 +47,7 @@ export default {
       const lat2 = markerPosition.lat;
       const lon2 = markerPosition.lng;
 
+      // haverstine
       if ((lat1 === lat2) && (lon1 === lon2)) {
         return 0;
       } else {
@@ -78,26 +66,34 @@ export default {
         return dist;
       }
     },
+  },
+  mounted() {
+    this.comp = createApp({
+      render: () => h(FBXExample, { //virtual dom node
+        modelPath: this.modelPath
+      })
+    });
+    this.comp.mount(this.node);
+    this.node.style.top = '-100px';
+    this.node.style.left = '-150px';
+    this.node.style.position = 'absolute';
+
+    this.calculateScale();
+    this.checkRenderDistance();
+  },
+  beforeUnmount() {
+    this.comp.unmount()
+    this.comp = null
+  },
+  watch: {
+    calcDistance() {
+      console.log("scaling")
+      this.calculateScale();
+      this.checkRenderDistance();
+    }
   }
 }
 
 </script>
 
-<template>
-  <div v-if="isVisible" id="marker-container" ref="markerContainer"></div>
-  <div id="test_computed"> {{ calcHaversineDistance }} meters </div>
-</template>
-
-<style>
-
-#test_computed {
-  position: absolute;
-  z-index: 12;
-  background-color: white;
-  bottom: 10px;
-  left: 50%;
-  width: 50%;
-  transform: translateX(-50%);
-}
-
-</style>
+<template></template>
