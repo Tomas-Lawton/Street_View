@@ -38,6 +38,8 @@ const routes = [
     },
 ];
 
+console.log("Available routes: ", routes)
+
 const router = createRouter({
     history: createWebHistory(),
     base: import.meta.env.BASE_URL,
