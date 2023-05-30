@@ -4,16 +4,14 @@ var _ = require('lodash');
 
 const app = express();
 app.use(cors({ origin: "http://localhost:8081" }));
-app.use(cors({ origin: "https://static-ai-street-view.onrender.com:10000" }));
-// app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "http://static-ai-street-view.onrender.com" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   cors: {
-    // origins: ['*']
-    origins: ['http://localhost:8080', "https://static-ai-street-view.onrender.com:10000"]
+    origins: ['http://localhost:8081', "http://static-ai-street-view.onrender.com:10000"]
   }
 });
 
