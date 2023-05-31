@@ -3,18 +3,18 @@ const cors = require("cors");
 var _ = require('lodash');
 
 const app = express();
-app.use(cors({ origin: "http://localhost:8081" }));
-app.use(cors({ origin: "https://static-ai-street-view.onrender.com" }));
+// app.use(cors({ origin: "http://localhost:8081" }));
+// app.use(cors({ origin: "https://static-ai-street-view.onrender.com" }));
+app.use('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const http = require('http').createServer(app);
-const io = require('socket.io')(http, {
-  cors: {
-    // origins: ['http://localhost:8081', "https://static-ai-street-view.onrender.com"]
-    origins: ["*"]
-  }
-});
+const options = {
+  cors: true,
+  origins: ["https://static-ai-street-view.onrender.com", 'http://localhost:8081']
+}
+const io = require('socket.io')(http, options);
 
 const config = require('./conf.js');
 const path = __dirname + '/app/views/';
