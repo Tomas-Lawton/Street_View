@@ -148,6 +148,8 @@ export default {
         SocketioService.socket.emit('controlling', this.selectedMode);
         if (this.selectedMode !== "Free") {
           SocketioService.socket.emit('position', this.userPosition);
+
+          console.log("emit pov follow mode")
           SocketioService.socket.emit('pov', this.userPov);
         }
       }

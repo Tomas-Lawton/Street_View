@@ -74,6 +74,8 @@ export default {
         if (store.state.user.pov !== newPov) {
           this.updatePov(newPov);
           if (SocketioService.socket && this.willUpdate) {
+
+            console.log('emit pov changed')
             SocketioService.socket.emit('pov', newPov);
           }
         }
