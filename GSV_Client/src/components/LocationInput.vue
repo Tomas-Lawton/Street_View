@@ -23,14 +23,13 @@ export default {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-
             this.getAddressFrom(
               position.coords.latitude,
               position.coords.longitude
             );
             store.commit('updateUserPosition', {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
+              lat: this.address.lat,
+              lng: this.address.lng
             });
           },
           (error) => {
@@ -61,8 +60,9 @@ export default {
             this.error = response.data.error_message;
             console.log(response.data.error_message);
           } else {
-            this.address = response.data.results[0].formatted_address;
+            this.address = response.data.results[0].geometry.location;
           }
+          console.log(this.address)
           this.spinner = false;
         })
         .catch((error) => {
@@ -80,7 +80,7 @@ export default {
   <!--<div class="ui message red" v-show="error">{{error}}</div>-->
   <div class="ui icon input large google-input" :class="{ loading: spinner }">
     <GMapAutocomplete placeholder="Search Google Maps" @place_changed="setPlace" />
-    <i class="search link icon" @click="locatorButtonPressed"></i>
+    <i class="map marker link alternate icon" @click="locatorButtonPressed"></i>
   </div>
 </template>
 

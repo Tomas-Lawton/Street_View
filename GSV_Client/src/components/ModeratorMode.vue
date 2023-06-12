@@ -1,9 +1,12 @@
 <script>
 export default {
     name: "ModeratorMode",
+    props: {
+        currentMode: String,
+    },
     data() {
         return {
-            selectedMode: "Controlling",
+            selectedMode: this.currentMode,
             dropdownOptions: [
                 "Controlling",
                 "Following",
@@ -20,24 +23,29 @@ export default {
         updateParent() {
             this.$parent.setFollowMode(this.selectedMode)
         }
+    },
+    watch: {
+        currentMode: {
+            handler: function (val) {
+                if (this.selectedMode !== val) {
+                    this.selectedMode = val
+                }
+            },
+            immediate: true
+        },
     }
 };
 </script>
 
 <template>
     <div class="container-moderator-mode">
-        <SelectButton v-model="selectedMode" 
-            :options="dropdownOptions" 
-            :unselectable="false" 
-            @click="updateParent"
-            class="selector" 
-        />
+        <SelectButton v-model="selectedMode" :options="dropdownOptions" unselectable="false" @click="updateParent"
+            class="selector" />
         <div class="indicator" :class="{ active: !willControl }"></div>
     </div>
 </template>
 
 <style>
-
 .selector {
     border-radius: 2px;
 }

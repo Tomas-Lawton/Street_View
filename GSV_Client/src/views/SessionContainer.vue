@@ -239,7 +239,7 @@ export default {
   <section id="session-container" :class="sessionKey">
 
     <LocationInput />
-    <ModeratorMode v-if="!isUser" :setFollowMode="setFollowMode" />
+    <ModeratorMode v-if="!isUser" :setFollowMode="setFollowMode" :currentMode="selectedMode"/>
 
     <MiniMap v-if="showMap" :isUser="isUser" :startingPosition="startingPosition" :markers="markers" ref="miniMapRef" />
     <Panorama v-if="isLoaded" :mapRef="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
@@ -261,7 +261,7 @@ export default {
         <i class="home icon"></i>
       </button>
       <button @click="clearMarkers" class="ui follow-button active">
-        <i class="map marker alternate icon"></i>
+        <i class="trash icon"></i>
       </button>
     </div>
 
