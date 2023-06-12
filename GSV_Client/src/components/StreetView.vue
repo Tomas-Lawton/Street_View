@@ -19,7 +19,7 @@ export default {
     updatePosition: { type: Function },
     updatePov: { type: Function },
   },
-  emits: ['marker-changed'],
+  emits: ['markerChanged'],
   data() {
     return {
       pano: null,
@@ -157,13 +157,8 @@ export default {
         });
 
         google.maps.event.addListener(marker, 'dragend', () => {
-          console.log('test')
-          const id = marker.icon.url.split('#')[1];
-          const newPosition = marker.position;
-
-
-          // DO SOMETHING HERE IN PARENT
-          this.$emit('marker-changed', newPosition, id);
+          console.log(i)
+          this.$emit('markerChanged', marker.position, i);
         });
 
         this.gMapsMarkers.push(marker);

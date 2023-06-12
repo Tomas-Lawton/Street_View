@@ -17,6 +17,7 @@ export default {
     updatePov: Function,
     updatePosition: Function
   },
+  emits: ['markerChanged'],
   computed: {
     panoStyle() {
       return {
@@ -24,14 +25,21 @@ export default {
           : "50vw", "height": "100vh"
       }
     },
-  }
+  },
+  methods: {
+    handleMarkerChange(event, id) {
+      this.$emit('markerChanged', event, id);
+    },
+  },
 };
 </script>
 
+    <!-- TO DO unpack this component !!!!! -->
+
 <template>
   <section :style="panoStyle" id="pano-container">
-    <!-- TO DO unpack this component -->
-    <StreetView :map="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
-      :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition" />
+    <StreetView :map="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition" :userPov="userPov"
+      :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition"
+      @markerChanged="handleMarkerChange"/>
   </section>
 </template>

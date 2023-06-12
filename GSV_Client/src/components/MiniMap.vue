@@ -22,7 +22,7 @@ export default {
             this.$parent.selectMarkerEvent(event, index)
         },
         handleDragEnd(event, index) {
-            this.$parent.markerChangedEvent(event, index)
+            this.$parent.handleMarkerChange(event.latLng, index)
         }
     },
     computed: {
@@ -47,7 +47,6 @@ export default {
         }
     },
     data() {
-
         return {
             options: {
                 mapTypeControl: false,

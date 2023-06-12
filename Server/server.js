@@ -29,6 +29,7 @@ let pov = { heading: 0, pitch: 0 }
 io.on('connection', (socket) => {
   // Connect and load markers for joining clients
   console.log('connected id: ', socket.id);
+  console.log(markers)
   connections.push(socket);
   for (let i = 0; i < markers.length; i++) {
     socket.emit("marker", markers[i]);

@@ -3,7 +3,6 @@
 import { useStore } from 'vuex';
 import { computed, ref } from 'vue';
 
-import StreetView from "@/components/StreetView.vue";
 import ModeratorMode from "@/components/ModeratorMode.vue";
 import SocketioService from "../services/socket";
 import MarkerDropdown from "@/components/MarkerDropdown.vue";
@@ -14,7 +13,7 @@ import Panorama from "@/components/Panorama.vue";
 export default {
   name: 'SessionContainer',
   components: {
-    StreetView, MarkerDropdown, ModeratorMode, LocationInput, Panorama, MiniMap
+    MarkerDropdown, ModeratorMode, LocationInput, Panorama, MiniMap
   },
   props: {
     position: Object,
@@ -42,9 +41,9 @@ export default {
         (this.selectedMode === "Following" && this.isUser))
     },
     willFollow() {
-      return (this.selectedMode !== "Free") && 
-          (this.selectedMode === "Controlling" && this.isUser) || 
-          (this.selectedMode === "Following" && !this.isUser)
+      return (this.selectedMode !== "Free") &&
+        (this.selectedMode === "Controlling" && this.isUser) ||
+        (this.selectedMode === "Following" && !this.isUser)
     },
     deleteButtonStyle() {
       return {
@@ -111,15 +110,16 @@ export default {
         alert("Moderator Only :)")
       }
     },
-    markerChangedEvent(event, id) {
+    handleMarkerChange(event, id) {
+
+      console.log("loadinggg, ", event, id)
+
       const position = {
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng()
+        lat: event.lat(),
+        lng: event.lng()
       };
-      console.log(position, id)
 
       if (!this.isUser) {
-        console.log('b')
         this.markers[id].position = position;
         console.log(this.markers[id].position)
         if (SocketioService.socket) {
@@ -241,11 +241,12 @@ export default {
   <section id="session-container" :class="sessionKey">
 
     <LocationInput />
-    <ModeratorMode v-if="!isUser" :setFollowMode="setFollowMode" :currentMode="selectedMode"/>
+    <ModeratorMode v-if="!isUser" :setFollowMode="setFollowMode" :currentMode="selectedMode" />
 
     <MiniMap v-if="showMap" :isUser="isUser" :startingPosition="startingPosition" :markers="markers" ref="miniMapRef" />
     <Panorama v-if="isLoaded" :mapRef="mapRef" :isUser="isUser" :markers="markers" :userPosition="userPosition"
-      :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition" />
+      :userPov="userPov" :willUpdate="willUpdate" :updatePov="updatePov" :updatePosition="updatePosition"
+      @markerChanged="handleMarkerChange" />
     <MarkerDropdown v-if="showDropdown" :menuPosition="menuPosition" :createMarker="createMarker" />
 
     <button class="delete-button" v-if="showRemove" @click="deleteMarker" :style="deleteButtonStyle">
