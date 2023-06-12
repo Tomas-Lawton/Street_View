@@ -29,6 +29,9 @@ export default {
     }
   },
   mounted() {
+    const createData = new google.maps.Data();
+    console.log(createData)
+
     this.pano = new google.maps.StreetViewPanorama(
       this.$refs["pano"],
       {
@@ -44,7 +47,8 @@ export default {
         scrollwheel: false,
         zoomControl: false,
         showRoadLabels: false,
-        addressControl: false
+        addressControl: false,
+        radius: 500
       });
 
     this.map.$mapPromise.then((mapObject) => {

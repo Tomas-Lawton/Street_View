@@ -12,10 +12,14 @@ export default {
   },
   methods: {
     setPlace(place) {
-      store.commit('updateUserPosition', {
+      try {
+        store.commit('updateUserPosition', {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
       });
+      } catch (err) {
+        console.log('cant go there')
+      }
     },
     locatorButtonPressed() {
       this.spinner = true;

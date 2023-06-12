@@ -9,22 +9,21 @@ export default {
     };
   },
   methods: {
-    valueSubmitted: function() {
+    valueSubmitted: function () {
       console.log(this.api_input);
       console.log(this.$route.query.redirect);
 
       store.commit('login', this.api_input)
       this.$router.replace(this.$route.query.redirect || '/');
 
-      //let searchParams = new URLSearchParams(window.location.search);
 
-      //if (searchParams.has("redirect")) {
-      //  this.$router.push({ path: `${searchParams.get("redirect")}` });
-      //} else this.$router.push({ path: "/user" });
+      // if (searchParams.has("redirect")) {
+      //   this.$router.push({ path: `${searchParams.get("redirect")}` });
+      // } else { 
+      //   this.$router.push({ path: "/" }); 
+      // }
 
 
-      //this.$router.replace(sessionStorage.getItem('redirectPath') || '/defaultpath');
-      //sessionStorage.removeItem('redirectPath');
     }
   },
   mounted() {
@@ -37,21 +36,20 @@ export default {
   <!--<div>LANDING PAGE</div>-->
   <div class="ui middle aligned center aligned grid">
     <div class="column" style="width: 30%;">
-    <form class="ui large form">
-      <div class="ui stacked segment">
+      <form class="ui large form">
+        <div class="ui stacked segment">
           <div class="field">
             <input type="text" placeholder="Your API key" v-model="api_input">
           </div>
           <button class="ui fluid large red submit button" @click="valueSubmitted">Connect</button>
-      </div>
-    </form>
-  </div>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
 
 <style>
-
 body {
   background-color: lightgrey;
   height: 100%;
@@ -61,9 +59,8 @@ body {
   height: 100%;
 }
 
-#app > .grid {
+#app>.grid {
   height: 100%;
   background-color: lightgrey;
 }
-
 </style>
