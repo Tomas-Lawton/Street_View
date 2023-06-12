@@ -22,7 +22,7 @@ export default {
             this.$parent.selectMarkerEvent(event, index)
         },
         handleDragEnd(event, index) {
-            this.$parent.markerChangedEvent($event, index)
+            this.$parent.markerChangedEvent(event, index)
         }
     },
     computed: {
@@ -71,7 +71,7 @@ export default {
         <GMapMap ref="mapRef" :center="startingPosition" :zoom="zoomLevel" map-type-id="terrain" @click="mapClickEvent"
             :options="options" @dragstart="hideMenus">
             <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true"
-                :draggable="true" @click="selectMarker" @dragend="handleDragEnd" />
+                :draggable="true" @click="e => selectMarker(e, index)" @dragend="e => handleDragEnd(e, index)" />
         </GMapMap>
     </section>
 </template>

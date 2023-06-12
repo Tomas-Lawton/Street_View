@@ -116,8 +116,10 @@ export default {
         lat: event.latLng.lat(),
         lng: event.latLng.lng()
       };
+      console.log(position, id)
 
       if (!this.isUser) {
+        console.log('b')
         this.markers[id].position = position;
         console.log(this.markers[id].position)
         if (SocketioService.socket) {

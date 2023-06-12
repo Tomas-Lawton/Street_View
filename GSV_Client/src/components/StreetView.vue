@@ -160,6 +160,9 @@ export default {
           console.log('test')
           const id = marker.icon.url.split('#')[1];
           const newPosition = marker.position;
+
+
+          // DO SOMETHING HERE IN PARENT
           this.$emit('marker-changed', newPosition, id);
         });
 
