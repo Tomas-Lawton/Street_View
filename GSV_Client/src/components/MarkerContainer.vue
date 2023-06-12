@@ -77,7 +77,7 @@ export default {
     this.node.style.top = '-100px';
     this.node.style.left = '-150px';
     this.node.style.position = 'absolute';
-
+    console.log(this.modelPath)
     this.calculateScale();
     this.checkRenderDistance();
   },

@@ -42,6 +42,9 @@ export default {
                     "height": "100vh"
                 }
         },
+        zoomLevel() {
+            return this.isUser ? 19 : 40
+        }
     },
     data() {
 
@@ -65,7 +68,7 @@ export default {
                 <i class="close icon"></i>
             </button>
         </div>
-        <GMapMap ref="mapRef" :center="startingPosition" :zoom="40" map-type-id="terrain" @click="mapClickEvent"
+        <GMapMap ref="mapRef" :center="startingPosition" :zoom="zoomLevel" map-type-id="terrain" @click="mapClickEvent"
             :options="options" @dragstart="hideMenus">
             <GMapMarker :key="index" v-for="(m, index) in markers" :position="m.position" :clickable="true"
                 :draggable="true" @click="selectMarker" @dragend="handleDragEnd" />

@@ -29,9 +29,6 @@ export default {
     }
   },
   mounted() {
-    const createData = new google.maps.Data();
-    console.log(createData)
-
     this.pano = new google.maps.StreetViewPanorama(
       this.$refs["pano"],
       {
@@ -103,7 +100,6 @@ export default {
           const divNode = document.createElement('div');
           const markerNode = el.parentNode;
           markerNode.append(divNode);
-
           this.renderedMarkers.push({
             node: divNode,
             path: this.markers[index].model,
@@ -123,16 +119,17 @@ export default {
       const target = document.querySelectorAll('[aria-roledescription="map"]');
 
       if (!initiated) {
-        const observer = new MutationObserver(list => {
-          for (const mutation of list) {
-            if (mutation.type == "attributes") {
-              this.checkAllMarkers();
-            } else if (mutation.type == "childList") {
-              this.checkAllMarkers();
-            }
-          }
-        });
-        observer.observe(target[1], { attributes: true, attributeFilter: ['src'], childList: true, subtree: true });
+        const observer = new MutationObserver(list => this.checkAllMarkers())
+        // {
+        //   for (const mutation of list) {
+        //     if (mutation.type == "attributes") {
+        //       this.checkAllMarkers();
+        //     } else if (mutation.type == "childList") {
+        //       this.checkAllMarkers();
+        //     }
+        //   }
+        // });
+        observer.observe(target[0], { attributes: true, attributeFilter: ['src'], childList: true, subtree: true });
         initiated = true;
       }
     },
