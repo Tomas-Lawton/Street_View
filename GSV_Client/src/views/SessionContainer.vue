@@ -37,13 +37,16 @@ export default {
       return this.isUser ? "user" : "moderator"
     },
     willUpdate() {
-      return (this.selectedMode !== "Free") // Ignores the free mode
+      return ((this.selectedMode !== "Free") && // Ignores the free mode
+        (this.selectedMode === "Controlling" && !this.isUser) ||
+        (this.selectedMode === "Following" && this.isUser))
     },
     willFollow() {
-      return (this.selectedMode === "Controlling" && this.isUser)
-        || (this.selectedMode === "Following" && !this.isUser)
+      return (this.selectedMode !== "Free") && 
+          (this.selectedMode === "Controlling" && this.isUser) || 
+          (this.selectedMode === "Following" && !this.isUser)
     },
-    deleteButtonStyle () {
+    deleteButtonStyle() {
       return {
         left: this.menuPosition.x + 'px',
         top: this.menuPosition.y + 'px'
@@ -266,8 +269,6 @@ export default {
 </template>
 
 <style>
-
-
 #session-container {
   display: flex;
 }
