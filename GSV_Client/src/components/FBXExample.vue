@@ -41,8 +41,10 @@ export default {
   methods: {
     onLoad(object) {
       this.mixer = new AnimationMixer(object);
-      const action = this.mixer.clipAction(object.animations[0]);
-      action.play();
+      if (object.animations.length>0) {
+        const action = this.mixer.clipAction(object.animations[0]);
+        action.play();
+      }
       object.traverse(function (child) {
         if (child.isMesh) {
           child.castShadow = true;
@@ -60,10 +62,10 @@ export default {
 </script>
 
 <template>
-  <Renderer ref="renderer" antialias :orbit-ctrl="{ enableDamping: true, target }" width="300" height="200" shadow alpha>
+  <Renderer ref="renderer" antialias :orbit-ctrl="{ enableZoom: false, enablePan: false, enableRotate: false, enableDamping: true, target }" width="300" height="200" shadow alpha>
     <Camera :position="{ x: 10, y: 200, z: 200 }" />
     <Scene>
-      <AmbientLight />
+      <AmbientLight/>
       <FbxModel :src="modelPath" @load="onLoad" />
     </Scene>
   </Renderer>

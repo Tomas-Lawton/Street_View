@@ -23,6 +23,7 @@ export default {
         { key: 'animations/4.fbx' },
         { key: 'animations/5.fbx' },
         { key: 'animations/6.fbx' },
+        { key: 'animations/7.fbx' },
       ],
     };
   },
