@@ -64,7 +64,7 @@ With the server and client now running, they will automatically sync.
 
 Navigate to the /user and /moderator routes in seperate Chrome tabs to open the views. 
 
-You will need to add your API key.
+IMPORTANT: You will need to add your API key at the /login route and refresh the page.
 
 ```
 http://localhost:8081/moderator
@@ -74,8 +74,4 @@ http://localhost:8081/user
 ```
 
 The default route will route to the user view. You will manually need to change url to enter moderator mode.
-
-# Deployment
-
-Do Stuff
 
