@@ -92,7 +92,7 @@ export default {
           x: event.domEvent.pageX,
           y: event.domEvent.pageY
         }
-        this.showDropdown = true;
+        this.showDropdown = !this.showDropdown;
       }
     },
     selectMarkerEvent(event, index) {

@@ -24,6 +24,8 @@ export default {
         { key: 'animations/5.fbx' },
         { key: 'animations/6.fbx' },
         { key: 'animations/7.fbx' },
+        { key: 'animations/8.fbx' },
+        { key: 'animations/9.fbx' },
       ],
     };
   },
@@ -32,8 +34,8 @@ export default {
 </script>
 
 <template>
-  <ul label="Model Path" 
-    class="default" 
+  <ul label="Model Path"
+    class="default"
     :style="{
       left: menuPosition.x + 'px',
       top: menuPosition.y + 'px'
